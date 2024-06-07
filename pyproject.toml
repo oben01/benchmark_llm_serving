@@ -4,7 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "benchmark_llm_serving"
+authors = [
+  {email = "drosdadssocle.00620@francetravail.fr"},
+  {name = "Agence Data Services FT"}
+]
 description = "A library to to benchmark LLMs via their API exposure"
+description-file = "README.md"
+license = {file="LICENSE"}
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
@@ -15,6 +21,15 @@ dependencies = [
     "pydantic-settings>=2.2.1,<3.0",
     "requests>=2.31.0,<3.0"
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.urls]
+Repository = "https://github.com/OSS-Pole-Emploi/benchmark_llm_serving"
+
 
 dynamic = ["version"]
 
