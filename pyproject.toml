@@ -8,7 +8,7 @@ authors = [
   {email = "drosdadssocle.00620@francetravail.fr"},
   {name = "Agence Data Services FT"}
 ]
-description = "A library to to benchmark LLMs via their API exposure"
+description = "A library to benchmark LLMs via their API exposure"
 description-file = "README.md"
 license = {file="LICENSE"}
 readme = "README.md"
