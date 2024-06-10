@@ -9,7 +9,6 @@ authors = [
   {name = "Agence Data Services FT"}
 ]
 description = "A library to benchmark LLMs via their API exposure"
-description-file = "README.md"
 license = {file="LICENSE"}
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
@@ -27,11 +26,11 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
+dynamic = ["version"]
+
 [project.urls]
 Repository = "https://github.com/OSS-Pole-Emploi/benchmark_llm_serving"
 
-
-dynamic = ["version"]
 
 [tool.setuptools.dynamic]
 version = {file = "version.txt"}
