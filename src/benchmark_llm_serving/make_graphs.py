@@ -126,7 +126,7 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
                             speed_from_beginning_median,
                             speed_from_beginning[upper_percentile] - speed_from_beginning_median)
         speed_time_to_first_token = results['aggregated_metrics']['time_to_first_token']
-        speed_time_to_first_token_median = speed_time_to_first_token['median'] # TODO : get firt time token
+        speed_time_to_first_token_median = speed_time_to_first_token['median']
         speed_time_to_first_token_generation = (speed_time_to_first_token_median - speed_time_to_first_token[lower_percentile],
                             speed_time_to_first_token_median,
                             speed_time_to_first_token[upper_percentile] - speed_time_to_first_token_median)
@@ -175,11 +175,11 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
                 capsize=4, label="Speed generation")
     # Max KV cache plot
     max_kv_cache_graph = ax2.plot(parallel_requests_nbs, max_kv_cache, color='green', linestyle="--", label="Max KV cache")
-    # Special time to first token generation plot                
+    # Time to first token generation plot                
     speed_time_to_first_token_generation_graph = ax3.errorbar(parallel_requests_nbs, speed_time_to_first_token_plot, 
                 yerr=[speed_time_to_first_token_lower_percentiles, speed_time_to_first_token_upper_percentiles],
                 fmt='r-o',
-                capsize=2, label="Time to first token")
+                capsize=4, label="Time to first token")
     curves = [speed_generation_graph, max_kv_cache_graph[0], speed_time_to_first_token_generation_graph]
     # Legend
     ax1.legend(
@@ -447,7 +447,7 @@ def draw_and_save_graphs(output_folder: str, speed_threshold: float = 20.0):
     make_prompt_ingestion_graph(files, report_folder)
     now = utils.get_now()
     logger.info(f"{now} Making speed generation graphs")
-    make_speed_generation_graphs(files, report_folder, speed_threshold) # TODO : update
+    make_speed_generation_graphs(files, report_folder, speed_threshold)
     now = utils.get_now()
     logger.info(f"{now} Making kv cache profile graphs")
     make_kv_cache_profile_graphs(files, report_folder)
