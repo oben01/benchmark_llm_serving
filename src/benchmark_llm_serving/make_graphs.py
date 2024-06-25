@@ -113,7 +113,7 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     lower_percentile = 'percentile_25'
     upper_percentile = 'percentile_75'
     name_speed = "speed_generation"
-    name_special_speed = "speed_without_waiting_time"
+    name_speed_time_to_first_token = 'speed_time_to_first_token'
 
     # For each benchmark result
     for filename, results in input_output_files.items():
@@ -125,13 +125,13 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
         speed_generation = (speed_from_beginning_median - speed_from_beginning[lower_percentile],
                             speed_from_beginning_median,
                             speed_from_beginning[upper_percentile] - speed_from_beginning_median)
-        special_speed = results['aggregated_metrics']['speed_without_waiting_time']
-        special_speed_median = special_speed['median']
-        special_speed_generation = (special_speed_median - special_speed[lower_percentile],
-                            special_speed_median,
-                            special_speed[upper_percentile] - special_speed_median)
+        speed_time_to_first_token = results['aggregated_metrics']['time_to_first_token']
+        speed_time_to_first_token_median = speed_time_to_first_token['median'] # TODO : get firt time token
+        speed_time_to_first_token_generation = (speed_time_to_first_token_median - speed_time_to_first_token[lower_percentile],
+                            speed_time_to_first_token_median,
+                            speed_time_to_first_token[upper_percentile] - speed_time_to_first_token_median)
         data_summary[nb_parallel_requests] = {name_speed: speed_generation,
-                                              name_special_speed: special_speed_generation,
+                                              name_speed_time_to_first_token: speed_time_to_first_token_generation,
                                               "max_kv_cache": results['general_metrics']['max_kv_cache'],
                                               "parallel_requests_nb": nb_parallel_requests}
     
@@ -141,47 +141,56 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     speed_generation_plot = []
     speed_generation_lower_percentiles = []
     speed_generation_upper_percentiles = []
-    special_speed_plot = []
-    special_speed_lower_percentiles = []
-    special_speed_upper_percentiles = []
+    speed_time_to_first_token_plot = []
+    speed_time_to_first_token_lower_percentiles = []
+    speed_time_to_first_token_upper_percentiles = []
     max_kv_cache = []
 
     for parallel_requests_nb in parallel_requests_nbs:
         speed_generation_plot.append(data_summary[parallel_requests_nb][name_speed][1])
         speed_generation_lower_percentiles.append(data_summary[parallel_requests_nb][name_speed][0])
         speed_generation_upper_percentiles.append(data_summary[parallel_requests_nb][name_speed][2])
-        special_speed_plot.append(data_summary[parallel_requests_nb][name_special_speed][1])
-        special_speed_lower_percentiles.append(data_summary[parallel_requests_nb][name_special_speed][0])
-        special_speed_upper_percentiles.append(data_summary[parallel_requests_nb][name_special_speed][2])
+        speed_time_to_first_token_plot.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][1])
+        speed_time_to_first_token_lower_percentiles.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][0])
+        speed_time_to_first_token_upper_percentiles.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][2])
         max_kv_cache.append(data_summary[parallel_requests_nb]['max_kv_cache'])
 
     # Figure definition
     fig, ax1 = plt.subplots()
+    fig.subplots_adjust(right=0.75)
     ax2 = ax1.twinx()
+    ax3 = ax1.twinx()
+    ax3.spines.right.set_position(("axes", 1.1))
     fig.set_size_inches(18.5, 10.5)
     ax1.set_xlabel('Number of parallel requests', fontsize='14')
     ax1.set_ylabel('Speed generation (tokens per second)', fontsize='14')
     ax2.set_ylabel('Max KV cache percentage', fontsize='14')
     ax2.set_ylim([0, 1.0])
+    ax3.set_ylabel('Time to first token (ms)', fontsize='14')
+    ax3.set_ylim([0, 100.0])
 
     # Speed generation plot
     speed_generation_graph = ax1.errorbar(parallel_requests_nbs, speed_generation_plot, 
                 yerr=[speed_generation_lower_percentiles, speed_generation_upper_percentiles],
                 fmt='b-o',
                 capsize=4, label="Speed generation")
-    # Special speed generation plot                
-    special_speed_generation_graph = ax1.errorbar(parallel_requests_nbs, special_speed_plot, 
-                yerr=[special_speed_lower_percentiles, special_speed_upper_percentiles],
-                fmt='r-o',
-                capsize=4, label="Speed generation without waiting time")
-
     # Max KV cache plot
     max_kv_cache_graph = ax2.plot(parallel_requests_nbs, max_kv_cache, color='green', linestyle="--", label="Max KV cache")
-
+    # Special time to first token generation plot                
+    speed_time_to_first_token_generation_graph = ax3.errorbar(parallel_requests_nbs, speed_time_to_first_token_plot, 
+                yerr=[speed_time_to_first_token_lower_percentiles, speed_time_to_first_token_upper_percentiles],
+                fmt='r-o',
+                capsize=2, label="Time to first token")
+    curves = [speed_generation_graph, max_kv_cache_graph[0], speed_time_to_first_token_generation_graph]
     # Legend
-    lines, labels = ax1.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    plt.legend(lines + lines2, labels + labels2)
+    # lines, labels = ax1.get_legend_handles_labels()
+    # lines2, labels2 = ax2.get_legend_handles_labels()
+    # lines3, labels3 = ax3.get_legend_handles_labels()
+    # plt.legend(lines + lines2, labels + labels2, lines3 + labels3)
+    ax1.legend(
+        handles=curves,
+        labels=[c.get_label() for c in curves]
+    )
 
     plt.title(f"Model : {model_name} \n Speed generation | input length: {input_length} | output length : {output_length}", fontsize='16')
     # Save graph
@@ -443,7 +452,7 @@ def draw_and_save_graphs(output_folder: str, speed_threshold: float = 20.0):
     make_prompt_ingestion_graph(files, report_folder)
     now = utils.get_now()
     logger.info(f"{now} Making speed generation graphs")
-    make_speed_generation_graphs(files, report_folder, speed_threshold)
+    make_speed_generation_graphs(files, report_folder, speed_threshold) # TODO : update
     now = utils.get_now()
     logger.info(f"{now} Making kv cache profile graphs")
     make_kv_cache_profile_graphs(files, report_folder)
