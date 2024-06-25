@@ -167,7 +167,6 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     ax2.set_ylabel('Max KV cache percentage', fontsize='14')
     ax2.set_ylim([0, 1.0])
     ax3.set_ylabel('Time to first token (ms)', fontsize='14')
-    ax3.set_ylim([0, 100.0])
 
     # Speed generation plot
     speed_generation_graph = ax1.errorbar(parallel_requests_nbs, speed_generation_plot, 
@@ -183,10 +182,6 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
                 capsize=2, label="Time to first token")
     curves = [speed_generation_graph, max_kv_cache_graph[0], speed_time_to_first_token_generation_graph]
     # Legend
-    # lines, labels = ax1.get_legend_handles_labels()
-    # lines2, labels2 = ax2.get_legend_handles_labels()
-    # lines3, labels3 = ax3.get_legend_handles_labels()
-    # plt.legend(lines + lines2, labels + labels2, lines3 + labels3)
     ax1.legend(
         handles=curves,
         labels=[c.get_label() for c in curves]
