@@ -113,7 +113,7 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     lower_percentile = 'percentile_25'
     upper_percentile = 'percentile_75'
     name_speed = "speed_generation"
-    name_TTFT = 'speed_time_to_first_token'
+    name_TTFT = 'time_to_first_token'
 
     # For each benchmark result
     for filename, results in input_output_files.items():
@@ -125,13 +125,13 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
         speed_generation = (speed_from_beginning_median - speed_from_beginning[lower_percentile],
                             speed_from_beginning_median,
                             speed_from_beginning[upper_percentile] - speed_from_beginning_median)
-        speed_time_to_first_token = results['aggregated_metrics']['time_to_first_token']
-        speed_time_to_first_token_median = speed_time_to_first_token['median']
-        speed_time_to_first_token_generation = (speed_time_to_first_token_median - speed_time_to_first_token[lower_percentile],
-                            speed_time_to_first_token_median,
-                            speed_time_to_first_token[upper_percentile] - speed_time_to_first_token_median)
+        time_to_first_token = results['aggregated_metrics']['time_to_first_token']
+        time_to_first_token_median = time_to_first_token['median']
+        time_to_first_token_generation = (time_to_first_token_median - time_to_first_token[lower_percentile],
+                            time_to_first_token_median,
+                            time_to_first_token[upper_percentile] - time_to_first_token_median)
         data_summary[nb_parallel_requests] = {name_speed: speed_generation,
-                                              name_TTFT: speed_time_to_first_token_generation,
+                                              name_TTFT: time_to_first_token_generation,
                                               "max_kv_cache": results['general_metrics']['max_kv_cache'],
                                               "parallel_requests_nb": nb_parallel_requests}
     
@@ -141,18 +141,18 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     speed_generation_plot = []
     speed_generation_lower_percentiles = []
     speed_generation_upper_percentiles = []
-    speed_time_to_first_token_plot = []
-    speed_time_to_first_token_lower_percentiles = []
-    speed_time_to_first_token_upper_percentiles = []
+    time_to_first_token_plot = []
+    time_to_first_token_lower_percentiles = []
+    time_to_first_token_upper_percentiles = []
     max_kv_cache = []
 
     for parallel_requests_nb in parallel_requests_nbs:
         speed_generation_plot.append(data_summary[parallel_requests_nb][name_speed][1])
         speed_generation_lower_percentiles.append(data_summary[parallel_requests_nb][name_speed][0])
         speed_generation_upper_percentiles.append(data_summary[parallel_requests_nb][name_speed][2])
-        speed_time_to_first_token_plot.append(data_summary[parallel_requests_nb][name_TTFT][1])
-        speed_time_to_first_token_lower_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][0])
-        speed_time_to_first_token_upper_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][2])
+        time_to_first_token_plot.append(data_summary[parallel_requests_nb][name_TTFT][1])
+        time_to_first_token_lower_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][0])
+        time_to_first_token_upper_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][2])
         max_kv_cache.append(data_summary[parallel_requests_nb]['max_kv_cache'])
 
     # Figure definition
@@ -176,11 +176,11 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     # Max KV cache plot
     max_kv_cache_graph = ax2.plot(parallel_requests_nbs, max_kv_cache, color='green', linestyle="--", label="Max KV cache")
     # Time to first token generation plot                
-    speed_time_to_first_token_generation_graph = ax3.errorbar(parallel_requests_nbs, speed_time_to_first_token_plot, 
-                yerr=[speed_time_to_first_token_lower_percentiles, speed_time_to_first_token_upper_percentiles],
+    time_to_first_token_generation_graph = ax3.errorbar(parallel_requests_nbs, time_to_first_token_plot, 
+                yerr=[time_to_first_token_lower_percentiles, time_to_first_token_upper_percentiles],
                 fmt='r-o',
                 capsize=4, label="Time to first token")
-    curves = [speed_generation_graph, max_kv_cache_graph[0], speed_time_to_first_token_generation_graph]
+    curves = [speed_generation_graph, max_kv_cache_graph[0], time_to_first_token_generation_graph]
     # Legend
     ax1.legend(
         handles=curves,
