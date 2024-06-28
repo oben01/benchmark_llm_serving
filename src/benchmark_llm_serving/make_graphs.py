@@ -113,7 +113,7 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
     lower_percentile = 'percentile_25'
     upper_percentile = 'percentile_75'
     name_speed = "speed_generation"
-    name_speed_time_to_first_token = 'speed_time_to_first_token'
+    name_TTFT = 'speed_time_to_first_token'
 
     # For each benchmark result
     for filename, results in input_output_files.items():
@@ -131,7 +131,7 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
                             speed_time_to_first_token_median,
                             speed_time_to_first_token[upper_percentile] - speed_time_to_first_token_median)
         data_summary[nb_parallel_requests] = {name_speed: speed_generation,
-                                              name_speed_time_to_first_token: speed_time_to_first_token_generation,
+                                              name_TTFT: speed_time_to_first_token_generation,
                                               "max_kv_cache": results['general_metrics']['max_kv_cache'],
                                               "parallel_requests_nb": nb_parallel_requests}
     
@@ -150,9 +150,9 @@ def make_speed_generation_graph_for_one_input_output(input_length: int, output_l
         speed_generation_plot.append(data_summary[parallel_requests_nb][name_speed][1])
         speed_generation_lower_percentiles.append(data_summary[parallel_requests_nb][name_speed][0])
         speed_generation_upper_percentiles.append(data_summary[parallel_requests_nb][name_speed][2])
-        speed_time_to_first_token_plot.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][1])
-        speed_time_to_first_token_lower_percentiles.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][0])
-        speed_time_to_first_token_upper_percentiles.append(data_summary[parallel_requests_nb][name_speed_time_to_first_token][2])
+        speed_time_to_first_token_plot.append(data_summary[parallel_requests_nb][name_TTFT][1])
+        speed_time_to_first_token_lower_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][0])
+        speed_time_to_first_token_upper_percentiles.append(data_summary[parallel_requests_nb][name_TTFT][2])
         max_kv_cache.append(data_summary[parallel_requests_nb]['max_kv_cache'])
 
     # Figure definition
